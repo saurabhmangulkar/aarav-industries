@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EnquiryStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id               String       @id @default(cuid())
+  name             String
+  slug             String       @unique
+  shortDescription String
+  description      String       @db.Text
+  specifications   String?      @db.Text
+  image            String
+  published        Boolean      @default(true)
+  featured         Boolean      @default(false)
+  categoryId       String
+  category         Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  enquiries        Enquiry[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([categoryId])
+  @@index([published])
+}
+
+model Enquiry {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  phone     String
+  company   String
+  message   String        @db.Text
+  status    EnquiryStatus @default(NEW)
+  productId String?
+  product   Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status])
+}
+
+model SiteSettings {
+  id             String   @id @default("default")
+  companyName    String   @default("Aarav Industries")
+  tagline        String   @default("Quality Manufacturing. Reliable Solutions.")
+  phone          String   @default("+91 98765 43210")
+  email          String   @default("sales@aaravindustries.example")
+  address        String   @default("Plot No. 42, MIDC Industrial Area, Hingna Road, Nagpur, Maharashtra - 440016")
+  whatsappNumber String   @default("+919876543210")
+  aboutSummary   String   @db.Text
+  updatedAt      DateTime @updatedAt
+}
