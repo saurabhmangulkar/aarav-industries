@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import * as bcrypt from 'bcryptjs';
 import { createSessionToken, setAdminSession } from '@/lib/auth';
 
+export const runtime = 'nodejs';
+
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
